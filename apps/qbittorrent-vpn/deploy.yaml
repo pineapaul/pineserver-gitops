@@ -57,7 +57,7 @@ spec:
           value: Australia/Brisbane
         - name: WEBUI_PORT
           value: "8080"
-        image: lscr.io/linuxserver/qbittorrent:latest
+        image: lscr.io/linuxserver/qbittorrent:5.1.4-r0-ls428
         imagePullPolicy: Always
         name: qbittorrent
         ports:
