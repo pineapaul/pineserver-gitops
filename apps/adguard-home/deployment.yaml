@@ -12,6 +12,8 @@ spec:
       labels:
         app: adguard-home
     spec:
+      imagePullSecrets:
+        - name: dockerhub-cred
       containers:
         - name: adguard-home
           image: adguard/adguardhome:latest
