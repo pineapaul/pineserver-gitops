@@ -6,6 +6,10 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
 spec:
+  tls:
+    - hosts:
+        - adguard.pineserver.local
+      secretName: adguard-tls
   rules:
     - host: adguard.pineserver.local
       http:
@@ -17,3 +21,4 @@ spec:
                 name: adguard-home
                 port:
                   number: 3000
+
