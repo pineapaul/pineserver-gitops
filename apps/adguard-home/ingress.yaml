@@ -2,6 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: adguard-home
+  namespace: adguard-home
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
@@ -15,4 +16,4 @@ spec:
               service:
                 name: adguard-home
                 port:
-                  name: web
+                  number: 3000
