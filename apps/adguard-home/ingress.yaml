@@ -4,8 +4,17 @@ metadata:
   name: adguard-home
   namespace: adguard-home
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
+  tls:
+    - hosts:
+        - adguard.pineserver.local
+      # If you already had a cert secret name before, put it here.
+      # For now we can leave it as a generic name; Traefik will fall back to its
+      # default certificate if none exists.
+      secretName: adguard-tls
   rules:
     - host: adguard.pineserver.local
       http:
