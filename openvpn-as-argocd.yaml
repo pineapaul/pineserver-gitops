@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openvpn-as
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/pineapaul/pineserver-gitops.git
+    targetRevision: HEAD
+    path: apps/openvpn-as
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openvpn
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

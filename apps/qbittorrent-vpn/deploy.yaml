@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    deployment.kubernetes.io/revision: "2"
     kubectl.kubernetes.io/last-applied-configuration: |
       {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"qbittorrent-vpn","namespace":"media"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"qbittorrent-vpn"}},"template":{"metadata":{"labels":{"app":"qbittorrent-vpn"}},"spec":{"containers":[{"command":["/sbin/tini","--","/usr/bin/openvpn.sh","-d"],"image":"dperson/openvpn-client:latest","name":"vpn","securityContext":{"capabilities":{"add":["NET_ADMIN"]},"privileged":true},"volumeMounts":[{"mountPath":"/vpn","name":"vpn-config"},{"mountPath":"/dev/net/tun","name":"dev-net-tun"}]},{"env":[{"name":"PUID","value":"1000"},{"name":"PGID","value":"1000"},{"name":"TZ","value":"Australia/Brisbane"},{"name":"WEBUI_PORT","value":"8080"}],"image":"lscr.io/linuxserver/qbittorrent:latest","name":"qbittorrent","ports":[{"containerPort":8080,"name":"webui"}],"volumeMounts":[{"mountPath":"/config","name":"qb-config"},{"mountPath":"/downloads","name":"qb-downloads"}]}],"volumes":[{"name":"vpn-config","secret":{"items":[{"key":"vpn.conf","path":"vpn.conf"}],"secretName":"qbittorrent-ovpn"}},{"hostPath":{"path":"/dev/net/tun"},"name":"dev-net-tun"},{"name":"qb-config","persistentVolumeClaim":{"claimName":"qbittorrent-config-pvc"}},{"name":"qb-downloads","persistentVolumeClaim":{"claimName":"qbittorrent-downloads-pvc"}}]}}}}
   name: qbittorrent-vpn
