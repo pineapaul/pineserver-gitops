@@ -7,14 +7,14 @@ spec:
     app: adguard-home
   ports:
     - name: web
-      port: 3000
-      targetPort: web
+      port: 3000        # Service port Traefik hits
       protocol: TCP
+      targetPort: 80    # container port AdGuard actually listens on
     - name: dns-udp
       port: 53
-      targetPort: dns-udp
       protocol: UDP
+      targetPort: 53
     - name: dns-tcp
       port: 53
-      targetPort: dns-tcp
       protocol: TCP
+      targetPort: 53
