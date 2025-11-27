@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openvpn-as
+  labels:
+    app: openvpn-as
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openvpn-as
+  template:
+    metadata:
+      labels:
+        app: openvpn-as
+    spec:
+      containers:
+        - name: openvpn-as
+          image: openvpn/openvpn-as:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 943
+              protocol: TCP
+            - containerPort: 9443
+              protocol: TCP
+            - containerPort: 1194
+              protocol: TCP
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - MKNOD
+            privileged: true
+          volumeMounts:
+            - mountPath: /openvpn
+              name: openvpn-data
+            - mountPath: /dev/net/tun
+              name: dev-net-tun
+      volumes:
+        - name: openvpn-data
+          persistentVolumeClaim:
+            claimName: openvpn-as-pvc
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
