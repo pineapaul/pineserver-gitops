@@ -6,6 +6,9 @@ metadata:
 spec:
   project: default
   source:
+    kustomize:
+      images:
+        - adguard/adguardhome:latest
     repoURL: https://github.com/pineapaul/pineserver-gitops.git
     targetRevision: HEAD
     path: apps/adguard-home
