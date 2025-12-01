@@ -1,14 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: adguard-home
+  namespace: argocd
 spec:
-  destination:
-    namespace: adguard-home
-    server: https://kubernetes.default.svc
   project: default
   source:
-    path: apps/adguard-home
     repoURL: https://github.com/pineapaul/pineserver-gitops.git
     targetRevision: HEAD
+    path: apps/adguard-home
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: adguard-home
   syncPolicy:
     automated:
       enabled: false
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
