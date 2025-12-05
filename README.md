@@ -62,7 +62,36 @@ flowchart TD
     Longhorn --- Indexer
 
 ```
+## 🔐 Enrollment and password authentication flow
+```mermaid
+flowchart LR
+    subgraph Agent["Linux host (Wazuh agent)"]
+        AConf["Agent config\n/var/ossec/etc/ossec.conf"]
+        APass["Optional password file\n/etc/authd.pass"]
+        AProc["wazuh-agentd"]
+    end
 
+    subgraph Manager["Wazuh manager (K3s)"]
+        MAuth["wazuh-authd\n(listens on 1515/tcp)"]
+        MAuthPass["Manager password file\n/var/ossec/etc/authd.pass"]
+        MKeys["Agent key database\n/var/ossec/etc/client.keys"]
+    end
+
+    %% Agent side relationships
+    AConf --> AProc
+    APass --> AProc
+
+    %% Enrollment request from agent to manager
+    AProc --> MAuth
+
+    %% Manager validates password (if enabled)
+    MAuthPass --> MAuth
+
+    %% Manager issues and stores keys
+    MAuth --> MKeys
+    MKeys --> AProc
+
+```
 ---
 
 # 🚀 1. Install Wazuh Agent (Linux)
