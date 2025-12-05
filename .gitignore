@@ -1,0 +1,4 @@
+authd.pass
+*.key
+*.cert
+scripts/*.local
