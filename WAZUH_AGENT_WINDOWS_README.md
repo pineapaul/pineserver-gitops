@@ -375,6 +375,55 @@ If `Status` is `Never connected` → see the troubleshooting section below.
 
 ## 6. Troubleshooting
 
+```mermaid
+flowchart TD
+
+  classDef step fill:#202A35,stroke:#4A90E2,stroke-width:1px,color:#fff,border-radius:6px;
+  classDef decision fill:#3E4C59,stroke:#FFB100,stroke-width:1px,color:#fff,border-radius:6px;
+  classDef action fill:#1F5F8B,stroke:#4FC3F7,stroke-width:1px,color:#fff,border-radius:6px;
+  classDef error fill:#7F1D1D,stroke:#F97373,stroke-width:1px,color:#fff,border-radius:6px;
+
+  A([Start troubleshooting]):::step --> B[Check agent status on manager<br/>agent_control -l]:::action
+
+  B --> C{Agent entry exists}:::decision
+
+  C -->|No| D[On Windows<br/>Check WazuhSvc installed and running<br/>If needed reinstall MSI with correct<br/>manager host registration port password and name]:::error
+  D --> B
+
+  C -->|Yes| E{Status is Active}:::decision
+
+  E -->|Yes| F([Agent OK no issue]):::step
+
+  E -->|No Never connected| G[Diagnose connectivity from Windows]:::action
+
+  G --> H[Check DNS and ping<br/>nslookup wazuh.pineserver.local<br/>ping wazuh.pineserver.local]:::action
+  H --> I{DNS and ping OK}:::decision
+
+  I -->|No| J[Fix name resolution<br/>Update DNS or hosts file<br/>Then retest]:::error
+  J --> H
+
+  I -->|Yes| K[Test port 1514 from Windows<br/>Test NetConnection to wazuh.pineserver.local port 1514]:::action
+  K --> L{TCP test succeeded}:::decision
+
+  L -->|No| M[On pineserver<br/>Check wazuh agent proxy service<br/>Check socat is listening on 1514<br/>Fix service then retest]:::error
+  M --> K
+
+  L -->|Yes| N[On Windows<br/>Open ossec.conf<br/>Check client section]:::action
+  N --> O{Client config correct<br/>address wazuh.pineserver.local<br/>port 1514<br/>protocol tcp}:::decision
+
+  O -->|No| P[Fix ossec.conf client section<br/>Set address wazuh.pineserver.local<br/>Set port 1514<br/>Set protocol tcp<br/>Restart WazuhSvc]:::action
+  P --> B
+
+  O -->|Yes| Q[On Windows<br/>Check ossec agent log file<br/>Look for auth or duplicate name errors]:::action
+  Q --> R{Auth or duplicate errors}:::decision
+
+  R -->|Yes| S[On manager<br/>Confirm authd password file<br/>Remove duplicate agents if needed<br/>Re register agent with MSI or agent auth]:::error
+  S --> B
+
+  R -->|No| T([Check client keys and deeper network debug]):::step
+
+```
+
 ### 6.1 Agent never appears in `agent_control -l`
 
 Symptoms:
