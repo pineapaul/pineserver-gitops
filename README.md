@@ -9,16 +9,57 @@ It also serves as a reference for troubleshooting agent enrollment issues.
 
 ```mermaid
 flowchart TD
-    AgentHost["Linux Host / Container"]
-    WazuhAgent["Wazuh Agent"]
-    Manager["Wazuh Manager (K3s)"]
-    Indexer["Wazuh Indexer"]
-    Dashboard["Wazuh Dashboard"]
+    subgraph Host["pineserver (Ubuntu 22.04)"]
+        AgentLocal["Wazuh Agent\n(pineserver host)"]
+    end
 
-    AgentHost --> WazuhAgent
-    WazuhAgent --> Manager
-    Manager --> Indexer
-    Manager --> Dashboard
+    subgraph Containers["Linux agents (examples)"]
+        AgentLXD["Wazuh Agent\n(LXD container)"]
+        AgentDocker["Wazuh Agent\n(Docker container)"]
+    end
+
+    subgraph K3s["K3s cluster on pineserver"]
+        subgraph WazuhNS["wazuh namespace"]
+            Master["Wazuh Manager\nmaster pod"]
+            Worker1["Wazuh Manager\nworker-0 pod"]
+            Worker2["Wazuh Manager\nworker-1 pod"]
+
+            SvcMgr["Service wazuh-manager-worker\nNodePort 31924 → 1514/tcp"]
+            SvcEnroll["Service wazuh\nClusterIP 1515/tcp, 55000/tcp"]
+
+            Indexer["Wazuh Indexer\n(3-node cluster)"]
+            Dashboard["Wazuh Dashboard\n(Kibana UI)"]
+        end
+
+        Longhorn["Longhorn\nPV for manager/indexer"]
+    end
+
+    subgraph LAN["Home network"]
+        DNS["AdGuard Home\n*.pineserver.local → 192.168.0.42"]
+        Router["Router / DHCP\n192.168.0.1"]
+    end
+
+    %% Agents resolve wazuh.pineserver.local via AdGuard
+    AgentLocal --> DNS
+    AgentLXD --> DNS
+    AgentDocker --> DNS
+
+    %% DNS → router → NodePort / ClusterIP
+    DNS --> Router
+    Router --> SvcMgr
+    Router --> SvcEnroll
+
+    %% Services → manager master pod
+    SvcMgr --> Master
+    SvcEnroll --> Master
+
+    %% Manager talks to indexer + dashboard
+    Master --> Indexer
+    Master --> Dashboard
+
+    %% Longhorn volumes backing manager/indexer
+    Longhorn --- Master
+    Longhorn --- Indexer
 
 ```
 
